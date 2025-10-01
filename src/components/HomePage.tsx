@@ -121,7 +121,7 @@ export const HomePage = () => {
               ) : notes.length === 0 ? (
                 <p className="text-gray-500">No notes yet. Create your first note!</p>
               ) : (
-                notes.slice(0, 5).map((note) => (
+                notes.slice(0, 3).map((note) => (
                   <NoteCard
                     key={note.id}
                     title={note.note_title}

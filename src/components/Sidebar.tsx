@@ -1,14 +1,8 @@
-import { useState } from 'react';
-import { FileText, Plus, Search, Home, Pin, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FileText, Plus, Search, Home, X } from 'lucide-react';
 import notesLogo from '../assets/notes-logo.png';
-
-interface Note {
-  id: number;
-  title: string;
-  preview: string;
-  timestamp: string;
-  isPinned?: boolean;
-}
+import { notesApi } from '../services/notesApi';
+import type { Note } from '../types/note';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -17,29 +11,35 @@ interface SidebarProps {
 export const Sidebar = ({ isOpen }: SidebarProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isNotificationVisible, setIsNotificationVisible] = useState(true);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock notes data
-  const notes: Note[] = [
-    {
-      id: 2,
-      title: 'Note 2',
-      preview: 'We are delighted to have you join us in our quest to',
-      timestamp: '4 days ago',
-      isPinned: true,
-    },
-    {
-      id: 1,
-      title: 'Note 1',
-      preview: 'lead a life with less urgent tasks',
-      timestamp: '2 days ago',
-    },
-    {
-      id: 3,
-      title: 'Note 3',
-      preview: 'We are delighted to have you join us in our quest to lead a life with less urgent tasks, and more',
-      timestamp: '2 days ago',
-    },
-  ];
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const fetchedNotes = await notesApi.getAllNotes();
+        setNotes(fetchedNotes);
+      } catch (err) {
+        console.error('Error fetching notes:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotes();
+  }, []);
+
+  const formatTimestamp = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString('en-GB');
+  };
 
   return (
     <>
@@ -103,35 +103,33 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
 
                 {/* Notes List */}
                 <div className="space-y-1">
-                  {notes.map((note) => (
-                    <div
-                      key={note.id}
-                      className={`px-4 py-3 cursor-pointer transition-colors ${
-                        note.id === 3
-                          ? 'bg-purple-50 border-l-4 border-purple-600'
-                          : 'hover:bg-white border-l-4 border-transparent'
-                      }`}
-                    >
-                      <div className="flex items-start gap-2">
-                        {note.isPinned ? (
-                          <Pin size={16} className="text-purple-600 flex-shrink-0 mt-0.5" />
-                        ) : (
+                  {loading ? (
+                    <div className="px-4 py-3 text-sm text-gray-500">Loading notes...</div>
+                  ) : notes.length === 0 ? (
+                    <div className="px-4 py-3 text-sm text-gray-500">No notes yet</div>
+                  ) : (
+                    notes.map((note) => (
+                      <div
+                        key={note.id}
+                        className="px-4 py-3 cursor-pointer transition-colors hover:bg-white border-l-4 border-transparent"
+                      >
+                        <div className="flex items-start gap-2">
                           <FileText size={16} className="text-gray-400 flex-shrink-0 mt-0.5" />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold text-gray-900 mb-1">
-                            {note.title}
-                          </h3>
-                          <p className="text-xs text-gray-600 line-clamp-2 mb-1">
-                            {note.preview}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {note.timestamp}
-                          </p>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                              {note.note_title}
+                            </h3>
+                            <p className="text-xs text-gray-600 line-clamp-2 mb-1">
+                              {note.note_text}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              {formatTimestamp(note.created_at)}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
 

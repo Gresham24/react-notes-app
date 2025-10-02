@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sidebar } from './Sidebar';
+import { Layout } from './Layout';
 import { NoteCard } from './NoteCard';
-import { Sun, User, Clock, Plus } from 'lucide-react';
+import { Clock, Plus } from 'lucide-react';
 import notesLogo from '../assets/notes-logo.png';
 import { notesApi } from '../services/notesApi';
 import type { Note } from '../types/note';
@@ -35,58 +35,12 @@ export const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} onSelectNote={handleSelectNote} selectedNoteId={null} />
-
-      {/* Main Content */}
-      <main
-        className={`transition-all duration-300 flex flex-col min-h-screen ${
-          isSidebarOpen ? 'ml-60' : 'ml-20'
-        }`}
-      >
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-8 h-14 flex items-center justify-between">
-          {/* Left side - Hamburger menu */}
-          <button 
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-1.5 hover:bg-gray-100 rounded transition-colors"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12.6667 2H3.33333C2.59695 2 2 2.59695 2 3.33333V12.6667C2 13.403 2.59695 14 3.33333 14H12.6667C13.403 14 14 13.403 14 12.6667V3.33333C14 2.59695 13.403 2 12.6667 2Z"
-                stroke="#09090B"
-                strokeWidth="1.33333"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M6 2V14"
-                stroke="#09090B"
-                strokeWidth="1.33333"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-
-          {/* Right side - Theme toggle and profile */}
-          <div className="flex items-center gap-3">
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <Sun size={16} className="text-gray-900" />
-            </button>
-            <button className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
-              <User size={20} className="text-white" />
-            </button>
-          </div>
-        </header>
-
+    <Layout
+      isSidebarOpen={isSidebarOpen}
+      onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+      onSelectNote={handleSelectNote}
+      selectedNoteId={null}
+    >
         {/* Hero Section */}
         <section className="px-8 py-16 text-center">
           <div className="max-w-2xl mx-auto">
@@ -140,8 +94,6 @@ export const HomePage = () => {
             </div>
           </div>
         </section>
-      </main>
-
-    </div>
+    </Layout>
   );
 };

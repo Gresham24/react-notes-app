@@ -52,7 +52,7 @@ export const Sidebar = ({ isOpen, onSelectNote, selectedNoteId }: SidebarProps) 
       {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-screen bg-gray-50 border-r border-gray-200 transition-all duration-300 ease-in-out ${
-          isOpen ? 'w-60' : 'w-20'
+          isOpen ? 'w-72' : 'w-20'
         } flex flex-col z-10`}
       >
         {/* Header */}

@@ -1,22 +1,35 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Layout } from '../components/Layout';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { NoteView } from '../components/NoteView';
 import { notesApi } from '../services/notesApi';
 import type { Note } from '../types/note';
 
+interface OutletContext {
+  notes: Note[];
+  loading: boolean;
+}
+
 export const NoteViewPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { notes } = useOutletContext<OutletContext>();
   const [note, setNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     const fetchNote = async () => {
       if (!id) return;
 
+      // First try to find note in cached notes
+      const cachedNote = notes.find(n => n.id === Number(id));
+      if (cachedNote) {
+        setNote(cachedNote);
+        setLoading(false);
+        return;
+      }
+
+      // If not in cache, fetch from API
       try {
         const fetchedNote = await notesApi.getNoteById(Number(id));
         setNote(fetchedNote);
@@ -29,11 +42,7 @@ export const NoteViewPage = () => {
     };
 
     fetchNote();
-  }, [id]);
-
-  const handleSelectNote = (selectedNote: Note) => {
-    navigate(`/notes/${selectedNote.id}`);
-  };
+  }, [id, notes]);
 
   const handleEdit = (note: Note) => {
     console.log('Edit note:', note);
@@ -78,49 +87,28 @@ export const NoteViewPage = () => {
 
   if (loading) {
     return (
-      <Layout
-        isSidebarOpen={isSidebarOpen}
-        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-        onSelectNote={handleSelectNote}
-        selectedNoteId={Number(id)}
-      >
-        <div className="flex items-center justify-center h-full">
-          <p className="text-gray-500">Loading note...</p>
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-500">Loading note...</p>
+      </div>
     );
   }
 
   if (error || !note) {
     return (
-      <Layout
-        isSidebarOpen={isSidebarOpen}
-        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-        onSelectNote={handleSelectNote}
-        selectedNoteId={null}
-      >
-        <div className="flex items-center justify-center h-full">
-          <p className="text-red-500">{error || 'Note not found'}</p>
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center h-full">
+        <p className="text-red-500">{error || 'Note not found'}</p>
+      </div>
     );
   }
 
   return (
-    <Layout
-      isSidebarOpen={isSidebarOpen}
-      onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-      onSelectNote={handleSelectNote}
-      selectedNoteId={note.id}
-    >
-      <NoteView
-        note={note}
-        onEdit={handleEdit}
-        onTogglePin={handleTogglePin}
-        onDuplicate={handleDuplicate}
-        onDelete={handleDelete}
-        isPinned={note.is_pinned || false}
-      />
-    </Layout>
+    <NoteView
+      note={note}
+      onEdit={handleEdit}
+      onTogglePin={handleTogglePin}
+      onDuplicate={handleDuplicate}
+      onDelete={handleDelete}
+      isPinned={note.is_pinned || false}
+    />
   );
 };

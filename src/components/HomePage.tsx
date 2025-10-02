@@ -1,46 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Layout } from './Layout';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { NoteCard } from './NoteCard';
 import { Clock, Plus } from 'lucide-react';
 import notesLogo from '../assets/notes-logo.png';
-import { notesApi } from '../services/notesApi';
 import type { Note } from '../types/note';
+
+interface OutletContext {
+  notes: Note[];
+  loading: boolean;
+}
 
 export const HomePage = () => {
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        const fetchedNotes = await notesApi.getAllNotes();
-        setNotes(fetchedNotes);
-      } catch (err) {
-        setError('Failed to load notes');
-        console.error('Error fetching notes:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNotes();
-  }, []);
+  const { notes, loading } = useOutletContext<OutletContext>();
 
   const handleSelectNote = (note: Note) => {
     navigate(`/notes/${note.id}`);
   };
 
   return (
-    <Layout
-      isSidebarOpen={isSidebarOpen}
-      onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-      onSelectNote={handleSelectNote}
-      selectedNoteId={null}
-    >
+    <>
         {/* Hero Section */}
         <section className="px-8 py-16 text-center">
           <div className="max-w-2xl mx-auto">
@@ -76,9 +54,7 @@ export const HomePage = () => {
             <div className="flex gap-4 overflow-x-auto pb-4">
               {loading ? (
                 <p className="text-gray-500">Loading notes...</p>
-              ) : error ? (
-                <p className="text-red-500">{error}</p>
-              ) : notes.length === 0 ? (
+              ) : !notes || notes.length === 0 ? (
                 <p className="text-gray-500">No notes yet. Create your first note!</p>
               ) : (
                 notes.slice(0, 3).map((note) => (
@@ -94,6 +70,6 @@ export const HomePage = () => {
             </div>
           </div>
         </section>
-    </Layout>
+    </>
   );
 };

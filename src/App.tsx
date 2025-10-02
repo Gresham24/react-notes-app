@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Login, SignUp } from './features/auth/index.js';
+import { Layout } from './components/Layout';
 import { HomePage } from './components/HomePage';
 import { NoteViewPage } from './pages/NoteViewPage';
 import './App.css';
@@ -23,8 +24,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/notes/:id" element={<NoteViewPage />} />
+        <Route element={<Layout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/notes/:id" element={<NoteViewPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

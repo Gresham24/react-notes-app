@@ -1,36 +1,56 @@
-import type { ReactNode } from 'react';
+import { useState, useEffect } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { notesApi } from '../services/notesApi';
 import type { Note } from '../types/note';
 
-interface LayoutProps {
-  children: ReactNode;
-  isSidebarOpen: boolean;
-  onToggleSidebar: () => void;
-  onSelectNote: (note: Note) => void;
-  selectedNoteId: number | null;
-}
+export const Layout = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export const Layout = ({ 
-  children, 
-  isSidebarOpen, 
-  onToggleSidebar, 
-  onSelectNote, 
-  selectedNoteId 
-}: LayoutProps) => {
+  // Determine selected note ID from URL
+  const selectedNoteId = location.pathname.startsWith('/notes/')
+    ? Number(location.pathname.split('/')[2])
+    : null;
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const fetchedNotes = await notesApi.getAllNotes();
+        setNotes(fetchedNotes);
+      } catch (err) {
+        console.error('Error fetching notes:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotes();
+  }, []);
+
+  const handleSelectNote = (note: Note) => {
+    navigate(`/notes/${note.id}`);
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Sidebar */}
-      <Sidebar 
-        isOpen={isSidebarOpen} 
-        onSelectNote={onSelectNote} 
-        selectedNoteId={selectedNoteId} 
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onSelectNote={handleSelectNote}
+        selectedNoteId={selectedNoteId}
+        notes={notes}
+        loading={loading}
       />
 
       {/* Header */}
-      <Header 
+      <Header
         isSidebarOpen={isSidebarOpen}
-        onToggleSidebar={onToggleSidebar} 
+        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
       />
 
       {/* Main Content */}
@@ -39,7 +59,7 @@ export const Layout = ({
           isSidebarOpen ? 'ml-72' : 'ml-20'
         }`}
       >
-        {children}
+        <Outlet context={{ notes, loading }} />
       </main>
     </div>
   );

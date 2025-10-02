@@ -1,39 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FileText, Plus, Search, Home, X } from 'lucide-react';
 import notesLogo from '../assets/notes-logo.png';
-import { notesApi } from '../services/notesApi';
 import type { Note } from '../types/note';
 
 interface SidebarProps {
   isOpen: boolean;
   onSelectNote: (note: Note) => void;
   selectedNoteId: number | null;
+  notes: Note[];
+  loading: boolean;
 }
 
-export const Sidebar = ({ isOpen, onSelectNote, selectedNoteId }: SidebarProps) => {
+export const Sidebar = ({ isOpen, onSelectNote, selectedNoteId, notes, loading }: SidebarProps) => {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [isNotificationVisible, setIsNotificationVisible] = useState(true);
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loading, setLoading] = useState(true);
 
   const isHomePage = location.pathname === '/';
-
-  useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        const fetchedNotes = await notesApi.getAllNotes();
-        setNotes(fetchedNotes);
-      } catch (err) {
-        console.error('Error fetching notes:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNotes();
-  }, []);
 
   const formatTimestamp = (dateString: string) => {
     const date = new Date(dateString);

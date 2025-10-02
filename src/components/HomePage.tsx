@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { NoteCard } from './NoteCard';
 import { Sun, User, Clock, Plus } from 'lucide-react';
@@ -7,6 +8,7 @@ import { notesApi } from '../services/notesApi';
 import type { Note } from '../types/note';
 
 export const HomePage = () => {
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,10 +30,14 @@ export const HomePage = () => {
     fetchNotes();
   }, []);
 
+  const handleSelectNote = (note: Note) => {
+    navigate(`/notes/${note.id}`);
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} />
+      <Sidebar isOpen={isSidebarOpen} onSelectNote={handleSelectNote} selectedNoteId={null} />
 
       {/* Main Content */}
       <main
@@ -122,12 +128,13 @@ export const HomePage = () => {
                 <p className="text-gray-500">No notes yet. Create your first note!</p>
               ) : (
                 notes.slice(0, 3).map((note) => (
-                  <NoteCard
-                    key={note.id}
-                    title={note.note_title}
-                    preview={note.note_text}
-                    date={new Date(note.created_at).toLocaleDateString('en-GB')}
-                  />
+                  <div key={note.id} onClick={() => handleSelectNote(note)} className="cursor-pointer">
+                    <NoteCard
+                      title={note.note_title}
+                      preview={note.note_text}
+                      date={new Date(note.created_at).toLocaleDateString('en-GB')}
+                    />
+                  </div>
                 ))
               )}
             </div>

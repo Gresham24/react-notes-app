@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { FileText, Plus, Search, Home, X } from 'lucide-react';
 import notesLogo from '../assets/notes-logo.png';
 import { notesApi } from '../services/notesApi';
@@ -6,13 +7,18 @@ import type { Note } from '../types/note';
 
 interface SidebarProps {
   isOpen: boolean;
+  onSelectNote: (note: Note) => void;
+  selectedNoteId: number | null;
 }
 
-export const Sidebar = ({ isOpen }: SidebarProps) => {
+export const Sidebar = ({ isOpen, onSelectNote, selectedNoteId }: SidebarProps) => {
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [isNotificationVisible, setIsNotificationVisible] = useState(true);
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const isHomePage = location.pathname === '/';
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -50,7 +56,10 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
         } flex flex-col z-10`}
       >
         {/* Header */}
-        <div className={`flex items-center ${isOpen ? 'justify-start' : 'justify-center'} px-4 py-3.5 h-14 border-b border-gray-200`}>
+        <Link
+          to="/"
+          className={`flex items-center ${isOpen ? 'justify-start' : 'justify-center'} px-4 py-3.5 h-14 border-b border-gray-200 hover:bg-gray-100 transition-colors`}
+        >
           {isOpen ? (
             <div className="flex items-center gap-2">
               <img src={notesLogo} alt="Notes" className="w-7 h-7 rounded-lg" />
@@ -59,13 +68,13 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
           ) : (
             <img src={notesLogo} alt="Notes" className="w-10 h-10 rounded-lg" />
           )}
-        </div>
+        </Link>
 
         {/* Sidebar Content */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col overflow-hidden relative">
           {isOpen ? (
             <>
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden">
                 {/* Create Note Button */}
                 <div className="p-4">
                   <button className="flex items-center gap-3 px-3 py-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
@@ -95,10 +104,17 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
 
                 {/* Home Button */}
                 <div className="pb-2">
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-900 hover:bg-gray-100 transition-colors bg-purple-50 border-l-4 border-purple-600">
+                  <Link
+                    to="/"
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-gray-900 transition-colors ${
+                      isHomePage
+                        ? 'bg-purple-50 border-l-4 border-purple-600'
+                        : 'hover:bg-gray-100 border-l-4 border-transparent'
+                    }`}
+                  >
                     <Home size={16} className="text-gray-900" />
                     <span className="text-sm font-medium">Home</span>
-                  </button>
+                  </Link>
                 </div>
 
                 {/* Notes List */}
@@ -111,7 +127,12 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
                     notes.map((note) => (
                       <div
                         key={note.id}
-                        className="px-4 py-3 cursor-pointer transition-colors hover:bg-white border-l-4 border-transparent"
+                        onClick={() => onSelectNote(note)}
+                        className={`px-4 py-3 cursor-pointer transition-colors ${
+                          selectedNoteId === note.id
+                            ? 'bg-purple-50 border-l-4 border-purple-600'
+                            : 'hover:bg-white border-l-4 border-transparent'
+                        }`}
                       >
                         <div className="flex items-start gap-2">
                           <FileText size={16} className="text-gray-400 flex-shrink-0 mt-0.5" />
@@ -133,9 +154,9 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
                 </div>
               </div>
 
-              {/* Welcome Notification - Stuck at bottom */}
+              {/* Welcome Notification - Floating at bottom */}
               {isNotificationVisible && (
-                <div className="p-4 border-t border-gray-200">
+                <div className="absolute bottom-4 left-4 right-4 z-10">
                   <div className="bg-purple-50 rounded-lg border border-purple-200 p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-purple-600 font-bold text-sm">
@@ -170,9 +191,14 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
               </button>
 
               {/* Home Icon */}
-              <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors">
+              <Link
+                to="/"
+                className={`p-2 rounded-lg transition-colors ${
+                  isHomePage ? 'bg-purple-100' : 'hover:bg-gray-200'
+                }`}
+              >
                 <Home size={16} className="text-gray-900" />
-              </button>
+              </Link>
 
               {/* Note Icon */}
               <button className="p-2.5 bg-purple-50 rounded-lg">

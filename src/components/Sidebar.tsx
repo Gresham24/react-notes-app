@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FileText, Plus, Search, Home, X } from 'lucide-react';
+import { FileText, Plus, Search, Home } from 'lucide-react';
+// import { X } from 'lucide-react';
 import notesLogo from '../assets/notes-logo.png';
 import type { Note } from '../types/note';
 
@@ -15,7 +16,7 @@ interface SidebarProps {
 export const Sidebar = ({ isOpen, onSelectNote, selectedNoteId, notes, loading }: SidebarProps) => {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isNotificationVisible, setIsNotificationVisible] = useState(true);
+  // const [isNotificationVisible, setIsNotificationVisible] = useState(true);
 
   const isHomePage = location.pathname === '/';
 
@@ -139,7 +140,7 @@ export const Sidebar = ({ isOpen, onSelectNote, selectedNoteId, notes, loading }
               </div>
 
               {/* Welcome Notification - Floating at bottom */}
-              {isNotificationVisible && (
+              {/* {isNotificationVisible && (
                 <div className="absolute bottom-4 left-4 right-4 z-10">
                   <div className="bg-purple-50 rounded-lg border border-purple-200 p-4">
                     <div className="flex justify-between items-start mb-2">
@@ -159,7 +160,7 @@ export const Sidebar = ({ isOpen, onSelectNote, selectedNoteId, notes, loading }
                     </p>
                   </div>
                 </div>
-              )}
+              )} */}
             </>
           ) : (
             // Collapsed sidebar icons

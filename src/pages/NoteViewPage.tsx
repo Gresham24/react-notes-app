@@ -49,17 +49,6 @@ export const NoteViewPage = () => {
     // TODO: Implement edit functionality
   };
 
-  const handleTogglePin = async (note: Note) => {
-    try {
-      // TODO: Implement pin/unpin API call
-      const updatedNote = { ...note, is_pinned: !note.is_pinned };
-      setNote(updatedNote);
-      console.log('Toggle pin:', note);
-    } catch (err) {
-      console.error('Failed to toggle pin:', err);
-    }
-  };
-
   const handleDuplicate = async (note: Note) => {
     try {
       const duplicatedNote = await notesApi.createNote({
@@ -108,7 +97,7 @@ export const NoteViewPage = () => {
       onTogglePin={handleTogglePin}
       onDuplicate={handleDuplicate}
       onDelete={handleDelete}
-      isPinned={note.is_pinned || false}
+
     />
   );
 };

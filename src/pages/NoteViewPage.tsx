@@ -94,10 +94,8 @@ export const NoteViewPage = () => {
     <NoteView
       note={note}
       onEdit={handleEdit}
-      onTogglePin={handleTogglePin}
       onDuplicate={handleDuplicate}
       onDelete={handleDelete}
-
     />
   );
 };

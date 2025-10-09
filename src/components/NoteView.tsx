@@ -1,23 +1,19 @@
 import { useState } from 'react';
-import { Edit, Share2, MoreVertical, Pin } from 'lucide-react';
+import { Edit, Share2, MoreVertical } from 'lucide-react';
 import type { Note } from '../types/note';
 
 interface NoteViewProps {
   note: Note;
   onEdit: (note: Note) => void;
-  onTogglePin: (note: Note) => void;
   onDuplicate: (note: Note) => void;
   onDelete: (note: Note) => void;
-  isPinned: boolean;
 }
 
 export const NoteView = ({
   note,
   onEdit,
-  onTogglePin,
   onDuplicate,
   onDelete,
-  isPinned,
 }: NoteViewProps) => {
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -63,18 +59,6 @@ export const NoteView = ({
               >
                 <Edit size={16} />
                 Edit
-              </button>
-
-              <button
-                onClick={() => onTogglePin(note)}
-                className={`px-4 py-2 text-sm rounded-lg transition-colors flex items-center gap-2 ${
-                  isPinned
-                    ? 'bg-purple-100 text-purple-600 hover:bg-purple-200'
-                    : 'border border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                <Pin size={16} className={isPinned ? 'fill-current' : ''} />
-                {isPinned ? 'Unpin' : 'Pin'}
               </button>
 
               <button

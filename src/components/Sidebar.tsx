@@ -48,7 +48,7 @@ export const Sidebar = ({ isOpen, onSelectNote, selectedNoteId, notes, loading }
           {isOpen ? (
             <div className="flex items-center gap-2">
               <img src={notesLogo} alt="Notes" className="w-7 h-7 rounded-lg" />
-              <span className="font-semibold text-gray-900">Notes</span>
+              <span className="font-semibold text-gray-900">Notes Staging</span>
             </div>
           ) : (
             <img src={notesLogo} alt="Notes" className="w-10 h-10 rounded-lg" />
